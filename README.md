@@ -4,3 +4,9 @@ The task of this assignment is to filter an ECG with FIR filters and to detect t
 ## Notes
 
 1. we take the `np.read(x)` bc x is in the time domain and the imaginary part (from `np.fft.ifft`) doesn't mean anything.
+
+
+## for next lab
+
+1. make FIR filter class that inherits from `Filter` class.
+2. use the ring buffer to store and delete values.
