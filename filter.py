@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from ultils import *
 
 class Filter:
+
     def __init__(self, cutoff_freqs, fs):
         '''
         cutoff_freqs: list of cutoff frequencies.
@@ -11,25 +13,7 @@ class Filter:
         self.fs = fs
         self.M = 2000 # number of taps/coefficients
         self.buffer = [0] * self.M
-        
-    
-    def calculate_sampling_rate(self, data_len, end_time):
-        '''Returns the sampling rate of the data (Hz).
-        data_len: Number of data points.
-        end_time: time length (end time) of the data.
-        '''
-        return int(data_len / end_time)
-    
-    def my_fft(self, data, rate):
-        '''Returns the frequency spectrum of the data.'''
-        fft_data = (np.fft.fft(data)) / len(data)
-        freqs = np.linspace(0, rate/2, num=len(data))
-        return freqs, fft_data
 
-
-    def my_ifft(self, fft_data):
-        '''Returns the time domain of the frequency spectrum.'''
-        return np.fft.ifft(fft_data) * len(fft_data)
     
     def calculate_coefficients(self):
         '''Returns the coefficients of the filter.'''
@@ -48,7 +32,7 @@ class Filter:
         X[first_index:second_index+1] = 0 # for the first notch
         X[self.M - second_index:self.M - first_index+1] = 0 # for the mirrored notch
 
-        self.plot(X, label='Frequency response')
+        # self.plot(X, label='Frequency response')
 
         # x(n) is the sample domain of the filter:
         x = np.fft.ifft(X)
@@ -61,10 +45,10 @@ class Filter:
         h[0:mid] = x_real[mid:self.M]
         h[mid:self.M] = x_real[0:mid]
 
-        fig = plt.figure(1)
+        # fig = plt.figure(1)
         # self.plot(h, label=' Before Frequency response', figure=fig)
 
-        h = h * np.hamming(self.M)
+        # h = h * np.hamming(self.M)
 
         # self.plot(h, label='After Frequency response', figure=fig)
 
@@ -85,26 +69,18 @@ class Filter:
         else:
             plt.figure(figure.number)
 
-        plt.plot(h, label=label)
-
-            
-
-def read_file(filename):
-    '''Returns the time and pulse data from the file.'''
-    data = np.loadtxt(filename)
-    time, pulse1, pulse2, pulse3 = data[:, 0], data[:, 1], data[:, 2], data[:, 3]
-    return time, pulse2
-
-
-time1, pulse = read_file("raw_data/person1_sleeping.dat")
-fs = int(len(pulse) / time1[-1])
-fir_filter = Filter([45, 55], fs)
-# freq_pulse = my_fft(pulse, 1/0.0000001)[1]
-# plt.plot(time1, pulse)
-fir_filter.calculate_coefficients()
-# fir_filter.plot_freq_domain()
+        h_db = 20 * np.log10(np.abs(h))
+        # plt.plot(np.linspace(0,500,len(h)), h_db, label=label)
+        # plt.plot(h)
 
 
 
-plt.legend()
-plt.show()
+# time, pulse = read_file("raw_data/person2_standing.dat")
+# fs = int(len(pulse) / time[-1])
+# filter_obj = Filter([45, 55], fs)
+# # plt.plot(time1, pulse)s
+# h = filter_obj.calculate_coefficients()
+# # plt.plot(h, label='Frequency response')
+
+# plt.legend()
+# plt.show()
