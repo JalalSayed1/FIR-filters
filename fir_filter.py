@@ -3,16 +3,17 @@ from ultils import *
 import matplotlib.pyplot as plt
 
 
-def calculate_coefficients(fs, cutoff_freqs):
+def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     '''Returns the coefficients of the filter.'''
     
     # calc resolution:
     # resolution = int(fs / M)
 
     # number of taps/coefficients
-    M = 200
+    M = int(fs/hp_cutoff_freq)
+    print(f"Number of taps: {M}")
 
-    low_freq, high_freq = cutoff_freqs
+    low_freq, high_freq = bs_cutoff_freqs
     if high_freq == 0:
         high_freq = fs
         
@@ -24,10 +25,21 @@ def calculate_coefficients(fs, cutoff_freqs):
     first_index = int(low_freq * M / fs)
     second_index= int(high_freq * M / fs)
 
+    hp_high_index = int(hp_cutoff_freq * M / fs)
+    print(f"High pass index: {hp_high_index}")
+
     # Set the values of the frequency response to 0.
     X[first_index:second_index+1] = 0 # for the first notch
     X[M - second_index:M - first_index+1] = 0 # for the mirrored notch
 
+    # remove everything before 1Hz:
+    X[0:hp_high_index] = 0
+    X[M - hp_high_index:M] = 0 # mirror
+
+    # plt.plot(X, label='Frequency response')
+    # plt.title(f"Frequency response of the filter with {low_freq}Hz and {high_freq}Hz notch")
+    # plt.xlabel("Frequency (Hz)")
+    # plt.ylabel("Amplitude")
 
     #remove everything before 1Hz:
     # low_index = 0
@@ -35,7 +47,7 @@ def calculate_coefficients(fs, cutoff_freqs):
     # print(high_index)
     # X[low_index:high_index] = 0
 
-    plt.plot(X, label='Frequency response')
+    # plt.plot(X, label='Frequency response')
 
     # x(n) is the sample domain of the filter:
     x = np.fft.ifft(X)
@@ -77,25 +89,33 @@ class FIRfilter:
 
         # print(self.coefficients)
         # print(self.buffer)
-        return np.sum(np.multiply(self.buffer, self.coefficients))
+        return np.sum(self.buffer * self.coefficients) # dot product
     
+    def apply_filter(self):
+        result = 0
+        aligned_data = np.roll(self.buffer, shift=1)
+        for i in range(self.ntaps):
+            result += self.coefficients[i] * aligned_data[i]
 
-time, pulses = read_file("raw_data/person2_standing.dat")
-fs = calculate_sampling_rate(len(pulses), time[-1])
+        return result
 
-# h_hp = calculate_coefficients(fs, [1, 0]) # 0 means no high freq specified, therefore, highpass
-h = calculate_coefficients(fs, [45, 55])
-# h = h_hp + h_bp
-plt.plot(h)
-fir_filter = FIRfilter(h)
+# time, pulses = read_file("raw_data/person2_standing.dat")
+# fs = calculate_sampling_rate(len(pulses), time[-1])
 
-filtered_pulse = []
-for pulse in pulses:
-    filtered_pulse.append(fir_filter.dofilter(pulse))
+# # h_hp = calculate_coefficients(fs, [1, 0]) # 0 means no high freq specified, therefore, highpass
+# h = calculate_coefficients(fs, [45, 55])
+# # h = h_hp + h_bp
+# plt.plot(h)
+# fir_filter = FIRfilter(h)
 
-plt.plot(time, pulses, label='Raw pulse')
-plt.plot(time, filtered_pulse, label='Filtered pulse')
+# filtered_pulse = []
+# # for pulse in pulses:
+# for pulse in [1,2,3,4,5]:
+#     filtered_pulse.append(fir_filter.dofilter(pulse))
 
-plt.legend()
-plt.show()
+# plt.plot(time, pulses, label='Raw pulse')
+# plt.plot(time, filtered_pulse, label='Filtered pulse')
+
+# plt.legend()
+# plt.show()
 

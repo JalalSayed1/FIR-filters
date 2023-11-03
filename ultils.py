@@ -4,7 +4,7 @@ def read_file(filename):
     '''Returns the time and pulse data from the file.'''
     data = np.loadtxt(filename)
     time, pulse1, pulse2, pulse3 = data[:, 0], data[:, 1], data[:, 2], data[:, 3]
-    return time, pulse2
+    return time, pulse1, pulse2, pulse3
 
 def calculate_sampling_rate(data_len, end_time):
         '''Returns the sampling rate of the data (Hz).
