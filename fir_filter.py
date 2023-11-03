@@ -3,7 +3,7 @@ from ultils import *
 import matplotlib.pyplot as plt
 
 
-def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
+def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq, window_fun):
     '''Returns the coefficients of the filter.'''
     
     # calc resolution:
@@ -36,18 +36,13 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     X[0:hp_high_index] = 0
     X[M - hp_high_index:M] = 0 # mirror
 
+    # calculate y axis in db:
+    # X = 20 * np.log10(X)
+
     # plt.plot(X, label='Frequency response')
     # plt.title(f"Frequency response of the filter with {low_freq}Hz and {high_freq}Hz notch")
     # plt.xlabel("Frequency (Hz)")
-    # plt.ylabel("Amplitude")
-
-    #remove everything before 1Hz:
-    # low_index = 0
-    # high_index = int(1 * M / fs)
-    # print(high_index)
-    # X[low_index:high_index] = 0
-
-    # plt.plot(X, label='Frequency response')
+    # plt.ylabel("Amplitude (dB)")
 
     # x(n) is the sample domain of the filter:
     x = np.fft.ifft(X)
@@ -63,7 +58,15 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     # fig = plt.figure(1)
     # self.plot(h, label=' Before Frequency response', figure=fig)
 
-    # h = h * np.hamming(M)
+    # plt.plot(X, label='Filter coefficients')
+
+    # for window in [np.hamming, np.hanning, np.blackman]:
+    #     h_test = h * window(M)
+    #     plt.plot(np.abs(np.fft.fft(h_test)), label=f'Filter coefficients after {window.__name__} window')
+
+    h = h * window_fun(M)
+
+    # plt.plot(h, label='Filter coefficients after hamming window')
 
     # self.plot(h, label='After Frequency response', figure=fig)
 
