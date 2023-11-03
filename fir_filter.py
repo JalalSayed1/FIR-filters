@@ -3,7 +3,7 @@ from ultils import *
 import matplotlib.pyplot as plt
 
 
-def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq, window_fun):
+def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     '''Returns the coefficients of the filter.'''
     
     # calc resolution:
@@ -55,27 +55,12 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq, window_fun):
     h[0:mid] = x_real[mid:M]
     h[mid:M] = x_real[0:mid]
 
-    # fig = plt.figure(1)
-    # self.plot(h, label=' Before Frequency response', figure=fig)
-
-    # plt.plot(X, label='Filter coefficients')
-
-    # for window in [np.hamming, np.hanning, np.blackman]:
-    #     h_test = h * window(M)
-    #     plt.plot(np.abs(np.fft.fft(h_test)), label=f'Filter coefficients after {window.__name__} window')
-
-    h = h * window_fun(M)
+    h = h * np.hamming(M)
 
     # plt.plot(h, label='Filter coefficients after hamming window')
 
     # self.plot(h, label='After Frequency response', figure=fig)
-
-    # store the impulse response of the filter:
-    # self.h = h
-
-    #remove everything before 1Hz:
-    # h[0:int(1 * M / fs)] = 0
-    
+        
     return h
 
 class FIRfilter:
