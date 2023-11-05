@@ -64,7 +64,6 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
 def filtering_with_FIR(fs, pulses):
     # filter coefficients are a bandstop filter with cutoff frequencies of 45Hz and 55Hz and a high pass filter with cutoff frequency of 1Hz:
     h = calculate_coefficients(fs, [45, 55], 0.5)
-    print(len(h))
 
     fir_filter = FIRfilter(h)
 
@@ -94,7 +93,8 @@ class FIRfilter:
 
 if __name__ == "__main__":
 
-    time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat")
+    time, pulse1, pulse2, pulse3 = read_file("raw_data/ecg_lying.dat")
+    
     pulses = pulse1
     fs = calculate_sampling_rate(len(pulses), time[-1])
 

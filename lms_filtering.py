@@ -1,7 +1,7 @@
 import numpy as np
 from ultils import *
 import matplotlib.pyplot as plt
-from fir_filter import FIRfilter, calculate_coefficients, filtering_with_FIR
+from fir_filtering import FIRfilter, calculate_coefficients, filtering_with_FIR
 
 
 class LMSfilter:
@@ -42,7 +42,7 @@ class LMSfilter:
 
 if __name__ == "__main__":
 
-    time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat")
+    time, pulse1, pulse2, pulse3 = read_file("raw_data/ecg_lying.dat")
     pulses = pulse1
     fs = calculate_sampling_rate(len(pulses), time[-1])
 
