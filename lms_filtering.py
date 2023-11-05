@@ -55,7 +55,10 @@ if __name__ == "__main__":
     noise = 50  # Hz
     DC = 0.5  # Hz
     learning_rate = 0.001
+    # learning_rates = [0.001, 0.005, 0.01, 0.09]
 
+    # for learning_rate in learning_rates:
+    #     plt.figure()
     for i, pulse in enumerate(pulses):
         # filtered_pulse.append(fir_filter.dofilter(pulse))
         ref_noise = np.sin(2*np.pi*noise/fs*i)
@@ -78,4 +81,11 @@ if __name__ == "__main__":
     plt.ylabel('Amplitude')
 
     plt.legend()
+        # save plot as svg:
+        # plt.savefig(f'./images/LMS_filtering_{learning_rate}.svg')
+
+        # reset the list:
+        # filtered_pulse_LMS = []
+
+
     plt.show()

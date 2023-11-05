@@ -4,50 +4,6 @@ import matplotlib.pyplot as plt
 from ultils import *
 import scipy.signal as signal
 
-def find_peaks(signal, threshold):
-    '''Returns the peaks of the signal.
-    signal: input signal
-    threshold: threshold of the peaks
-    '''
-    peaks = []
-    for i in range(1, len(signal) - 1):
-        if signal[i] > signal[i - 1] and signal[i] > signal[i + 1] and signal[i] > threshold:
-            peaks.append(i)
-    return peaks, signal[peaks]
-
-def detect_R_peaks(signal, fs):
-    '''detect R peaks in ECG signal using a matched FIR filter.
-    signal: ECG signal
-    fs: sampling rate
-    '''
-
-    filtered_pulse = filtering_with_FIR(fs, signal)
-    
-    # find peaks in filtered signal:
-    peaks, _ = find_peaks(filtered_pulse, threshold=0)
-
-    # find the maximum of the peaks:
-    max_peaks = []
-    for peak in peaks:
-        max_peaks.append(filtered_pulse[peak])
-
-    # find the threshold:
-    threshold = np.mean(max_peaks)
-
-    # find the peaks that are above the threshold:
-    R_peaks = []
-    for peak in peaks:
-        if filtered_pulse[peak] > threshold:
-            R_peaks.append(peak)
-
-    return R_peaks
-
-def test(template, pulses):
-    det = signal.lfilter(template, 1, pulses)
-
-    return det**2
-
-
 def matched_filter(pulses, fs):
 
     filtered_pulse = filtering_with_FIR(fs, pulses)
@@ -55,11 +11,10 @@ def matched_filter(pulses, fs):
     # plt.plot(filtered_pulse, label='Filtered pulse')
 
     template = filtered_pulse[1200:1800]
-    # template = filtered_pulse[4200:5000]
 
     # plt.plot(template, label='Template')
 
-
+    # invert the template:
     template_reversed = template[::-1]
 
 
@@ -67,9 +22,10 @@ def matched_filter(pulses, fs):
 
     detections = []
 
-    for i, pulse in enumerate(pulses):
+    for i, pulse in enumerate(filtered_pulse):
         detections.append(detector.dofilter(pulse))
 
+    # square detections:
     detections = [detection**2 for detection in detections]
 
     # plt.plot(detections, label='Detections')

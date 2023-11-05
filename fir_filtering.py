@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     '''Returns the coefficients of the filter.'''
 
-    # calc resolution:
-    # resolution = int(fs / M)
-
     # number of taps/coefficients
     M = int(fs/hp_cutoff_freq)
 
@@ -33,11 +30,8 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     X[0:hp_high_index] = 0
     X[M - hp_high_index:M] = 0  # mirror
 
-    # calculate y axis in db:
-    # X = 20 * np.log10(X)
-
     # plt.plot(X, label='Frequency response')
-    # plt.title(f"Frequency response of the filter with {low_freq}Hz and {high_freq}Hz notch")
+    # plt.title(f"Frequency response of the filter")
     # plt.xlabel("Frequency (Hz)")
     # plt.ylabel("Amplitude (dB)")
 
@@ -52,11 +46,16 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     h[0:mid] = x_real[mid:M]
     h[mid:M] = x_real[0:mid]
 
+    # plt.plot(h, label='Filter coefficients without hamming window')
+
     h = h * np.hamming(M)
 
-    # plt.plot(h, label='Filter coefficients after hamming window')
+    # plt.plot(h, label='Filter coefficients with hamming window')
 
-    # self.plot(h, label='After Frequency response', figure=fig)
+    # plt.title(f"Filter coefficients")
+    # plt.xlabel("Sample")
+    # plt.ylabel("Amplitude")
+
 
     return h
 
@@ -105,14 +104,16 @@ if __name__ == "__main__":
     plt.title(f'Filtered pulse')
     plt.xlabel('Sample')
     plt.ylabel('Amplitude')
-
-    # plt.plot(h, label='Filter coefficients')
-    # plt.title('Filter coefficients')
-    # plt.xlabel('Sample')
-    # plt.ylabel('Amplitude')
-
-    # plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
-    # plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft?(filtered_pulse)), label='FFT after filtering')
-
     plt.legend()
+
+
+    plt.figure()
+    plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
+    plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(filtered_pulse)), label='FFT after filtering')
+    plt.title('FFT of pulse')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude')
+    plt.legend()
+
+
     plt.show()
