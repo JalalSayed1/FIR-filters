@@ -11,7 +11,6 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
 
     # number of taps/coefficients
     M = int(fs/hp_cutoff_freq)
-    print(f"Number of taps: {M}")
 
     low_freq, high_freq = bs_cutoff_freqs
     if high_freq == 0:
@@ -25,7 +24,6 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     second_index = int(high_freq * M / fs)
 
     hp_high_index = int(hp_cutoff_freq * M / fs)
-    print(f"High pass index: {hp_high_index}")
 
     # Set the values of the frequency response to 0.
     X[first_index:second_index+1] = 0  # for the first notch
@@ -63,6 +61,20 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     return h
 
 
+def filtering_with_FIR(fs, pulses):
+    # filter coefficients are a bandstop filter with cutoff frequencies of 45Hz and 55Hz and a high pass filter with cutoff frequency of 1Hz:
+    h = calculate_coefficients(fs, [45, 55], 0.5)
+    print(len(h))
+
+    fir_filter = FIRfilter(h)
+
+    filtered_pulse = []
+
+    for i, pulse in enumerate(pulses):
+        filtered_pulse.append(fir_filter.dofilter(pulse))
+    return filtered_pulse
+
+
 class FIRfilter:
 
     def __init__(self, _coefficients):
@@ -80,35 +92,27 @@ class FIRfilter:
         return np.sum(self.buffer * self.coefficients)  # dot product
 
 
+if __name__ == "__main__":
 
-time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat")
-pulses = pulse1
-fs = calculate_sampling_rate(len(pulses), time[-1])
+    time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat")
+    pulses = pulse1
+    fs = calculate_sampling_rate(len(pulses), time[-1])
 
-# filter coefficients are a bandstop filter with cutoff frequencies of 45Hz and 55Hz and a high pass filter with cutoff frequency of 1Hz:
-h = calculate_coefficients(fs, [45, 55], 1)
+    filtered_pulse = filtering_with_FIR(fs, pulses)
 
-fir_filter = FIRfilter(h)
+    plt.plot(pulses, label='Raw pulse')
+    plt.plot(filtered_pulse, label='Filtered pulse')
+    plt.title(f'Filtered pulse')
+    plt.xlabel('Sample')
+    plt.ylabel('Amplitude')
 
-filtered_pulse = []
+    # plt.plot(h, label='Filter coefficients')
+    # plt.title('Filter coefficients')
+    # plt.xlabel('Sample')
+    # plt.ylabel('Amplitude')
 
-for i, pulse in enumerate(pulses):
-    filtered_pulse.append(fir_filter.dofilter(pulse))
+    # plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
+    # plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft?(filtered_pulse)), label='FFT after filtering')
 
-
-# plt.plot(pulses, label='Raw pulse')
-plt.plot(filtered_pulse, label='Filtered pulse')
-plt.title(f'Filtered pulse')
-plt.xlabel('Sample')
-plt.ylabel('Amplitude')
-
-# plt.plot(h, label='Filter coefficients')
-# plt.title('Filter coefficients')
-# plt.xlabel('Sample')
-# plt.ylabel('Amplitude')
-
-# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
-# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft?(filtered_pulse)), label='FFT after filtering')
-
-plt.legend()
-plt.show()
+    plt.legend()
+    plt.show()
