@@ -81,22 +81,34 @@ class FIRfilter:
 
 
 
-# time, pulses = read_file("raw_data/person2_standing.dat")
-# fs = calculate_sampling_rate(len(pulses), time[-1])
+time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat")
+pulses = pulse1
+fs = calculate_sampling_rate(len(pulses), time[-1])
 
-# # h_hp = calculate_coefficients(fs, [1, 0]) # 0 means no high freq specified, therefore, highpass
-# h = calculate_coefficients(fs, [45, 55])
-# # h = h_hp + h_bp
-# plt.plot(h)
-# fir_filter = FIRfilter(h)
+# filter coefficients are a bandstop filter with cutoff frequencies of 45Hz and 55Hz and a high pass filter with cutoff frequency of 1Hz:
+h = calculate_coefficients(fs, [45, 55], 1)
 
-# filtered_pulse = []
-# # for pulse in pulses:
-# for pulse in [1,2,3,4,5]:
-#     filtered_pulse.append(fir_filter.dofilter(pulse))
+fir_filter = FIRfilter(h)
 
-# plt.plot(time, pulses, label='Raw pulse')
-# plt.plot(time, filtered_pulse, label='Filtered pulse')
+filtered_pulse = []
 
-# plt.legend()
-# plt.show()
+for i, pulse in enumerate(pulses):
+    filtered_pulse.append(fir_filter.dofilter(pulse))
+
+
+# plt.plot(pulses, label='Raw pulse')
+plt.plot(filtered_pulse, label='Filtered pulse')
+plt.title(f'Filtered pulse')
+plt.xlabel('Sample')
+plt.ylabel('Amplitude')
+
+# plt.plot(h, label='Filter coefficients')
+# plt.title('Filter coefficients')
+# plt.xlabel('Sample')
+# plt.ylabel('Amplitude')
+
+# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
+# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft?(filtered_pulse)), label='FFT after filtering')
+
+plt.legend()
+plt.show()
