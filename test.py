@@ -19,17 +19,24 @@ lms_filter = LMSfilter(np.zeros(ntaps))
 
 filtered_pulse = []
 
+noise = 50  # Hz
+DC = 0.5 # Hz
+learning_rate = 0.009
+
 # for pulse in [1,2,3,4,5]:
 for i, pulse in enumerate(pulses):
     # filtered_pulse.append(fir_filter.dofilter(pulse))
-    noise = 50  # Hz
     ref_noise = np.sin(2*np.pi*noise/fs*i)
-    
-    filtered_pulse.append(lms_filter.doFilterAdaptive(pulse, ref_noise, 0.01))
+    ref_DC = np.sin(2*np.pi*DC/fs*i)
+
+    removed_noise = lms_filter.doFilterAdaptive(pulse, ref_noise, learning_rate)
+    removed_DC = lms_filter.doFilterAdaptive(removed_noise, ref_DC, learning_rate)
+
+    filtered_pulse.append(removed_DC)
 
 # plt.plot(pulses, label='Raw pulse')
 plt.plot(filtered_pulse, label='Filtered pulse')
-plt.title('Filtered pulse')
+plt.title(f'Filtered pulse with learning rate = {learning_rate}')
 plt.xlabel('Sample')
 plt.ylabel('Amplitude')
 
