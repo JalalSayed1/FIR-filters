@@ -1,28 +1,37 @@
 from fir_filter import *
+from lms import *
 from ultils import *
 
 # pulses = (pulse1, pulse2, pulse3):
-time, pulse1, pulse2, pulse3 = read_file("raw_data/person1_sleeping.dat") # pulse1 works
+time, pulse1, pulse2, pulse3 = read_file(
+    "raw_data/person1_sleeping.dat")  # pulse1 works
 # time, pulse1, pulse2, pulse3 = read_file("raw_data/person2_standing.dat")
 pulses = pulse1
 fs = calculate_sampling_rate(len(pulses), time[-1])
 
 # h = [0.1, 0.4, 0.5, 0.4, 0.1]
-h = calculate_coefficients(fs, [45, 55], 1)
+# h = calculate_coefficients(fs, [45, 55], 1)
 
-fir_filter = FIRfilter(h)
+# fir_filter = FIRfilter(h)
+ntaps = 100
+# initial coefficients are all zeros:
+lms_filter = LMSfilter(np.zeros(ntaps))
 
 filtered_pulse = []
 
 # for pulse in [1,2,3,4,5]:
-for pulse in pulses:
-        filtered_pulse.append(fir_filter.dofilter(pulse))
+for i, pulse in enumerate(pulses):
+    # filtered_pulse.append(fir_filter.dofilter(pulse))
+    noise = 50  # Hz
+    ref_noise = np.sin(2*np.pi*noise/fs*i)
+    
+    filtered_pulse.append(lms_filter.doFilterAdaptive(pulse, ref_noise, 0.01))
 
 # plt.plot(pulses, label='Raw pulse')
-# plt.plot(filtered_pulse, label='Filtered pulse')
-# plt.title('Filtered pulse')
-# plt.xlabel('Sample')
-# plt.ylabel('Amplitude')
+plt.plot(filtered_pulse, label='Filtered pulse')
+plt.title('Filtered pulse')
+plt.xlabel('Sample')
+plt.ylabel('Amplitude')
 
 # plt.plot(h, label='Filter coefficients')
 # plt.title('Filter coefficients')
@@ -30,11 +39,12 @@ for pulse in pulses:
 # plt.ylabel('Amplitude')
 
 
-plt.plot(np.linspace(0, fs,len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
-plt.plot(np.linspace(0, fs,len(pulses)), np.abs(np.fft.fft(filtered_pulse)), label='FFT after filtering')
-plt.title('FFT of pulse')
-plt.xlabel('Frequency (Hz)')
-plt.ylabel('Amplitude')
+# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft(pulses)), label='FFT of pulse')
+# plt.plot(np.linspace(0, fs, len(pulses)), np.abs(np.fft.fft?(filtered_pulse)), label='FFT after filtering')
+
+# plt.title('FFT of pulse')
+# plt.xlabel('Frequency (Hz)')
+# plt.ylabel('Amplitude')
 
 plt.legend()
 plt.show()

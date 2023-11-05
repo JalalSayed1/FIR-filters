@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     '''Returns the coefficients of the filter.'''
-    
+
     # calc resolution:
     # resolution = int(fs / M)
 
@@ -16,25 +16,24 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     low_freq, high_freq = bs_cutoff_freqs
     if high_freq == 0:
         high_freq = fs
-        
 
     # X(k) is the frequency response of the filter:
     X = np.ones(M)
 
     # Multiply with M to get the index of the frequency as Fs is normalised frequency.
     first_index = int(low_freq * M / fs)
-    second_index= int(high_freq * M / fs)
+    second_index = int(high_freq * M / fs)
 
     hp_high_index = int(hp_cutoff_freq * M / fs)
     print(f"High pass index: {hp_high_index}")
 
     # Set the values of the frequency response to 0.
-    X[first_index:second_index+1] = 0 # for the first notch
-    X[M - second_index:M - first_index+1] = 0 # for the mirrored notch
+    X[first_index:second_index+1] = 0  # for the first notch
+    X[M - second_index:M - first_index+1] = 0  # for the mirrored notch
 
     # remove everything before 1Hz:
     X[0:hp_high_index] = 0
-    X[M - hp_high_index:M] = 0 # mirror
+    X[M - hp_high_index:M] = 0  # mirror
 
     # calculate y axis in db:
     # X = 20 * np.log10(X)
@@ -60,8 +59,9 @@ def calculate_coefficients(fs, bs_cutoff_freqs, hp_cutoff_freq):
     # plt.plot(h, label='Filter coefficients after hamming window')
 
     # self.plot(h, label='After Frequency response', figure=fig)
-        
+
     return h
+
 
 class FIRfilter:
 
@@ -77,15 +77,9 @@ class FIRfilter:
 
         # print(self.coefficients)
         # print(self.buffer)
-        return np.sum(self.buffer * self.coefficients) # dot product
-    
-    def apply_filter(self):
-        result = 0
-        aligned_data = np.roll(self.buffer, shift=1)
-        for i in range(self.ntaps):
-            result += self.coefficients[i] * aligned_data[i]
+        return np.sum(self.buffer * self.coefficients)  # dot product
 
-        return result
+
 
 # time, pulses = read_file("raw_data/person2_standing.dat")
 # fs = calculate_sampling_rate(len(pulses), time[-1])
@@ -106,4 +100,3 @@ class FIRfilter:
 
 # plt.legend()
 # plt.show()
-
