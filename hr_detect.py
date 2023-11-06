@@ -53,10 +53,35 @@ def matched_filter(pulses, fs):
     plt.xlabel('Sample')
     plt.ylabel('Amplitude')
     plt.title('Matched filter')
+
+    return detections
     
+def calculate_hear_rate(detections, fs):
+    # calculate heart rate:
+    # find the time between two consecutive R peaks:
+    R_peaks = []
+    for i, detection in enumerate(detections):
+        if detection != 0 and detection > detections[i-1] and detection > detections[i+1]:
+            R_peaks.append(i)
+
+    time_between_R_peaks = []
+    for i in range(len(R_peaks)-1):
+        time_between_R_peaks.append(
+            (R_peaks[i+1] - R_peaks[i]) / fs)
 
 
+    peak_time = np.array(R_peaks) / fs
 
+    # heart_rates = []
+    # for time in time_between_R_peaks:
+    #     heart_rates.append(60 / time)
+    # heart_rate = 60 / np.array(time_between_R_peaks)
+    # print(f'{heart_rates}')
+
+    # plt.figure()
+    # plot momentory hear rate against time:
+    # plt.plot(np.linspace(0, len(heart_rates), len(heart_rates)), heart_rates)
+    return peak_time, R_peaks
 
 if __name__ == "__main__":
 
@@ -65,12 +90,18 @@ if __name__ == "__main__":
     pulses = pulse2
     fs = calculate_sampling_rate(len(pulses), time[-1])
 
-    matched_filter(pulses, fs)
+    detections = matched_filter(pulses, fs)
+
+    peak_time, R_peaks = calculate_hear_rate(detections, fs)
+
+    # plot momentory hear rate against time:
+    plt.figure()
+    plt.plot(peak_time, [pulses[i] for i in R_peaks], label='R peaks')
 
     # plt.plot(pulses, label='Raw pulse')
-    # plt.title(f'Detected R peaks')
-    # plt.xlabel('Sample')
-    # plt.ylabel('Amplitude')
+    plt.title(f'Detected R peaks')
+    plt.xlabel('Time')
+    plt.ylabel('Amplitude')
 
     plt.legend()
     plt.show()
