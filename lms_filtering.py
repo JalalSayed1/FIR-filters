@@ -24,20 +24,16 @@ class LMSfilter:
         noise: noise to be removed 
         learningRate: learning rate of the filter
         '''
-        error = signal - self.doFilter(noise)
-        # error = self.dofilter(signal) - noise
+
+        filtered_noise = self.doFilter(noise)
+        error = signal - filtered_noise
 
         # update coefficients
         for i in range(self.ntaps):
             self.coefficients[i] = self.coefficients[i] + \
                 learningRate * error * self.buffer[i]
 
-        # self.coefficients = self.coefficients + learningRate * error * self.buffer
-
-        canceller = signal - error
-        output_signal = signal - canceller
-        # return cleaned up ECG like before
-        return output_signal
+        return error
 
 
 if __name__ == "__main__":

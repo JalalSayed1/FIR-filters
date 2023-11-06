@@ -83,10 +83,6 @@ class FIRfilter:
     def dofilter(self, v):
         self.buffer = np.roll(self.buffer, shift=1)
         self.buffer[0] = v
-        # print(self.buffer)
-
-        # print(self.coefficients)
-        # print(self.buffer)
         return np.sum(self.buffer * self.coefficients)  # dot product
 
 
