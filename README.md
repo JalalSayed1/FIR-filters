@@ -1,12 +1,8 @@
-# FIR-filters
-The task of this assignment is to filter an ECG with FIR filters and to detect the R peaks. In contrast to the FFT assignment we write filter code which can be used for realtime processing. This means that the FIR filter needs to be implemented with the help of delay lines and the impulse response is truncated.
+# FIR Filters
 
-## Notes
+## Introduction
+In this assignment, we focus on signal processing in electrocardiogram (ECG) using the Finite Impulse Response (FIR) filtering method, where the impulse response is for a finite ratio. This is a causal signal processing method where the system processes the incoming signal in real-time, ideally with negligible latency, instead of requiring the complete sample to be processed. An adaptive FIR Least Mean Squares (LMS) filter is also used to make the FIR filter adaptive by changing the coefficients and learning the optimal filter coefficients over time. A matched filter is also written to detect the R-peaks signal for a noisy ECG.
 
-1. we take the `np.read(x)` bc x is in the time domain and the imaginary part (from `np.fft.ifft`) doesn't mean anything.
+## FIR filter implementation
 
 
-## for next lab
-
-1. make FIR filter class that inherits from `Filter` class.
-2. use the ring buffer to store and delete values.
